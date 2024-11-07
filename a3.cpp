@@ -1,62 +1,100 @@
+/*Write a program to implement Huffman Encoding using a greedy strategy.*/
 // knapsack
 #include <iostream>
+#include <queue>
 #include <vector>
-#include <algorithm> // For std::max
+#include <unordered_map>
 using namespace std;
 
-// Function to solve 0-1 Knapsack problem using Dynamic Programming
-int knapsackDP(int W, const vector<int>& weights, const vector<int>& values, int n) {
-    // Create a 2D DP array where dp[i][w] represents the maximum value of items that can be achieved with the first i items and weight limit w
-    vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
+struct HuffmanNode {
+    char data;                  // Input character
+    int frequency;              // Frequency of the character
+    HuffmanNode *left, *right;  // Left and right children
 
-    // Fill the DP table
-    for (int i = 1; i <= n; ++i) {
-        for (int w = 1; w <= W; ++w) {
-            if (weights[i - 1] <= w) {
-                // Take the maximum of including the item or not including it
-                dp[i][w] = max(dp[i - 1][w], dp[i - 1][w - weights[i - 1]] + values[i - 1]);
-            } else {
-                // If the item cannot be included due to weight constraints
-                dp[i][w] = dp[i - 1][w];
-            }
-        }
+    HuffmanNode(char data, int frequency) {
+        left = right = nullptr;
+        this->data = data;
+        this->frequency = frequency;
     }
-    // cout << "DP Table:" << endl;
-    // for (int i = 0; i <= n; ++i) {
-    //     for (int w = 0; w <= W; ++w) {
-    //         cout << dp[i][w] << " ";
-    //     }
-    //     cout << endl;
-    // }
+};
 
-    // The result is in the bottom-right cell of the table
-    return dp[n][W];
+// Comparator to order the min-heap (priority queue)
+struct Compare {
+    bool operator()(HuffmanNode* left, HuffmanNode* right) {
+        return left->frequency > right->frequency;
+    }
+};
+
+// Function to print the Huffman codes
+void printCodes(HuffmanNode* root, string code, unordered_map<char, string>& huffmanCodes) {
+    if (!root) return;
+
+    // If this node is a leaf node, it contains a character
+    if (!root->left && !root->right) {
+        huffmanCodes[root->data] = code;
+        cout << root->data << ": " << code << endl;
+    }
+
+    // Traverse left and right subtrees
+    printCodes(root->left, code + "0", huffmanCodes);
+    printCodes(root->right, code + "1", huffmanCodes);
+}
+
+// Function to build the Huffman tree and print codes
+void buildHuffmanTree(const string& text) {
+    // Count the frequency of each character
+    unordered_map<char, int> frequencyMap;
+    for (char ch : text) {
+        frequencyMap[ch]++;
+    }
+
+    // Create a priority queue (min-heap)
+    priority_queue<HuffmanNode*, vector<HuffmanNode*>, Compare> pq;
+
+    // Create a leaf node for each character and add it to the priority queue
+    for (auto pair : frequencyMap) {
+        pq.push(new HuffmanNode(pair.first, pair.second));
+    }
+
+    // Iterate until there is only one node left in the priority queue
+    while (pq.size() > 1) {
+        // Remove two nodes of the highest priority (lowest frequency)
+        HuffmanNode* left = pq.top();
+        pq.pop();
+        HuffmanNode* right = pq.top();
+        pq.pop();
+
+        // Create a new internal node with frequency equal to the sum of the two nodes' frequencies
+        HuffmanNode* newNode = new HuffmanNode('\0', left->frequency + right->frequency);
+
+        newNode->left = left;
+        newNode->right = right;
+
+        // Add the new node to the priority queue
+        pq.push(newNode);
+    }
+
+    // The remaining node is the root of the Huffman tree
+    HuffmanNode* root = pq.top();
+
+    // Traverse the Huffman tree and store the codes in a map
+    unordered_map<char, string> huffmanCodes;
+    printCodes(root, "", huffmanCodes);
+
+    // Print the encoded string
+    cout << "\nEncoded string: ";
+    for (char ch : text) {
+        cout << huffmanCodes[ch];
+    }
+    cout << endl;
 }
 
 int main() {
-    int W; // Capacity of the knapsack
-    int n; // Number of items
+    string text;
+    cout << "Enter text to encode using Huffman Encoding: ";
+    getline(cin, text);
 
-    cout << "Enter the capacity of the knapsack: ";
-    cin >> W;
-
-    cout << "Enter the number of items: ";
-    cin >> n;
-
-    vector<int> weights(n), values(n);
-
-    cout << "Enter the weights of the items: ";
-    for (int i = 0; i < n; ++i) {
-        cin >> weights[i];
-    }
-
-    cout << "Enter the values of the items: ";
-    for (int i = 0; i < n; ++i) {
-        cin >> values[i];
-    }
-
-    int maxValue = knapsackDP(W, weights, values, n);
-    cout << "The maximum value that can be achieved is: " << maxValue << endl;
+    buildHuffmanTree(text);
 
     return 0;
 }
