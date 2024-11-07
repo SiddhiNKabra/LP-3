@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
-
 using namespace std;
 
 // Function to perform deterministic Quick Sort
