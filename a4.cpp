@@ -12,7 +12,6 @@ bool isSafe(int row, int col, int **board, int n){
     // check top left diagonal
     i = row;
     j = col;
-    
     while(i >=0 and j >= 0){
         if(board[i][j] ==1){return false;}
         i--;
