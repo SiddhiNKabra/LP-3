@@ -13,8 +13,8 @@ void print_fibonacci(int n){
         int ans = fibonacci_recur(i);
         cout<<ans<<" , ";
     }
-    
 }
+
 void fibonacci_iterative(int n){
     int a = 0;
     int b = 1;
@@ -25,12 +25,9 @@ void fibonacci_iterative(int n){
         cout<<c<<" , ";
         a = b;
         b = c;
-        
-
     }
-
-
 }
+
 int main(){
     int ch;
     while(true){
@@ -52,6 +49,5 @@ int main(){
                 exit(0);
                 break;
         }
-
     }
 }
